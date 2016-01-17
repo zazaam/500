@@ -193,11 +193,25 @@ public final class Card implements Comparable<Card>
 	 */
 	public int compareTo(Card pCard)
 	{
-        int pCardOrd = pCard.getRank().ordinal(), thisOrd = getRank().ordinal();
-		if(pCardOrd < thisOrd){
-            return -1;
-        }else if (pCardOrd > thisOrd){
+        if(isJoker()){
+            if(pCard.isJoker()){
+                if(pCard.getJokerValue() == Joker.LOW)
+                    return 1;
+                else
+                    return -1;
+            }
             return 1;
+        }
+
+        if(pCard.isJoker())
+            return -1;
+
+        int pCardOrd = pCard.getRank().ordinal(), thisOrd = getRank().ordinal();
+
+		if(pCardOrd < thisOrd){
+            return 1;
+        }else if (pCardOrd > thisOrd){
+            return -1;
         }else {
             return 0;
         }
@@ -219,6 +233,11 @@ public final class Card implements Comparable<Card>
         Card card = (Card)pCard;
         if(card.isJoker()){
             if(this.isJoker())
+                return card.getJokerValue() == this.getJokerValue();
+            return false;
+        }
+        if(isJoker()){
+            if(card.isJoker())
                 return card.getJokerValue() == this.getJokerValue();
             return false;
         }
