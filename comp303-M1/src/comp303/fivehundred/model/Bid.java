@@ -1,12 +1,45 @@
 package comp303.fivehundred.model;
 
+import com.sun.deploy.security.ValidationState;
 import comp303.fivehundred.util.Card.Suit;
+
+
 
 /**
  * Represents a bid or a contract for a player. Immutable.
  */
 public class Bid implements Comparable<Bid>
 {
+    public enum Type {BID, NO_TRUMP, PASS}
+
+	private int trick = 0, bidIndex;
+
+    public Type getType() {
+        return type;
+    }
+
+    private Type type;
+    private Suit suit;
+
+    private static final int  NUMBER_OF_BIDS = 24;
+    private static final int  NUMBER_OF_BID_SUITS = 5;
+    private static final int[][] BID_INDEX = new int[][]{
+            {6,7,8,9,10},
+            {6,7,8,9,10},
+            {6,7,8,9,10},
+            {6,7,8,9,10},
+            {6,7,8,9,10},
+
+    };
+    private static final int[] SCORES = new int[]{
+            40,60,80,100,120,
+            140,160,180,200,220,
+            240,260,280,300,320,
+            340,360,380,400,420,
+            440,460,480,500,520
+    };
+
+
 	/**
 	 * Constructs a new standard bid (not a pass) in a trump.
 	 * @param pTricks Number of tricks bid. Must be between 6 and 10 inclusive.
@@ -15,6 +48,12 @@ public class Bid implements Comparable<Bid>
 	 */
 	public Bid(int pTricks, Suit pSuit)
 	{
+        this.trick = pTricks;
+        this.suit = pSuit;
+        if(trick == 0 && suit == null)
+            this.type = Type.NO_TRUMP;
+        else
+            this.type = Type.BID;
 	}
 	
 	/**
@@ -22,6 +61,7 @@ public class Bid implements Comparable<Bid>
 	 */
 	public Bid()
 	{
+        this.type = Type.PASS;
 	}
 	
 	/**
@@ -33,24 +73,74 @@ public class Bid implements Comparable<Bid>
 	 */
 	public Bid(int pIndex)
 	{
+        bidIndex = pIndex;
+
+        int bidSuit = pIndex / NUMBER_OF_BID_SUITS;
+
+
+        switch (bidSuit){
+            case 0:
+                trick = 6;
+                break;
+            case 1:
+                trick = 7;
+                break;
+            case 2:
+                trick = 8;
+                break;
+            case 3:
+                trick = 9;
+                break;
+            default:
+                trick = 10;
+                break;
+        }
+
+        switch (pIndex % NUMBER_OF_BID_SUITS){
+            case 0:
+                suit = Suit.SPADES;
+                type = Type.BID;
+                break;
+            case 1:
+                suit = Suit.CLUBS;
+                type = Type.BID;
+                break;
+            case 2:
+                suit = Suit.DIAMONDS;
+                type = Type.BID;
+                break;
+            case 3:
+                suit = Suit.HEARTS;
+                type = Type.BID;
+                break;
+            default:
+                suit = null;
+                type = Type.NO_TRUMP;
+                break;
+        }
+
 	}
 	
 	/**
 	 * @return The suit the bid is in, or null if it is in no-trump.
 	 * @throws ModelException if the bid is a pass.
 	 */
-	public Suit getSuit()
+	public Suit getSuit() throws ModelException
 	{
-		return null;
+		if(type == Type.PASS)
+            throw new ModelException("Bid is a Pass\n");
+        return suit;
 	}
 	
 	/**
 	 * @return The number of tricks bid.
 	 * @throws ModelException if the bid is a pass.
 	 */
-	public int getTricksBid()
-	{
-		return -1;
+	public int getTricksBid() throws ModelException
+    {
+        if(type == Type.PASS)
+            throw new ModelException("Bid is a Pass\n");
+        return trick;
 	}
 	
 	/**
@@ -58,7 +148,7 @@ public class Bid implements Comparable<Bid>
 	 */
 	public boolean isPass()
 	{
-		return false;
+		return type == Type.PASS;
 	}
 	
 	/**
@@ -66,13 +156,29 @@ public class Bid implements Comparable<Bid>
 	 */
 	public boolean isNoTrump()
 	{
-		return false;
+        return type == Type.NO_TRUMP || suit == null;
 	}
 
 	@Override
 	public int compareTo(Bid pBid)
 	{
-		return 0;
+        if(isPass()){
+            if(pBid.isPass())
+                return 0;
+            return -1;
+        }
+
+        if(pBid.isPass())
+            return 1;
+
+		int pBidIndex = getBidIndex(pBid);
+        int bidIndex = getBidIndex(this);
+
+        if(bidIndex < pBidIndex)
+            return -1;
+        if(bidIndex > pBidIndex)
+            return 1;
+        return 0;
 	}
 	
 	/**
@@ -82,7 +188,15 @@ public class Bid implements Comparable<Bid>
 	@Override
 	public String toString()
 	{
-		return "Deat cats, dead rats";
+        String s = "Bid: ";
+        if(type == Type.PASS)
+            s += "Pass";
+        if(type == Type.NO_TRUMP)
+            s += trick + " " + "No trumps";
+        if(type == Type.BID)
+            s += trick + " " + suit;
+        s+="\n";
+		return s;
 	}
 
 	/**
@@ -92,20 +206,26 @@ public class Bid implements Comparable<Bid>
 	@Override
 	public boolean equals(Object pBid)
 	{
-		return false;
+		if(pBid == null) return false;
+        if(pBid == this) return true;
+        if(!(pBid instanceof Bid)) return false;
+        Bid b = (Bid)pBid;
+        return b.suit == this.suit && b.trick == this.trick;
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * {@inheritDoc}
 	 */
-	@Override
-	public int hashCode()
-	{
-		return 0;
-	}
+    @Override
+    public int hashCode() {
+        int result = trick;
+        result = 31 * result + type.hashCode();
+        result = 31 * result + (suit != null ? suit.hashCode() : 0);
+        return result;
+    }
 
-	/**
+    /**
 	 * Converts this bid to an index in the 0-24 range.
 	 * @return 0 for a bid of 6 spades, 24 for a bid of 10 no-trump,
 	 * and everything in between.
@@ -113,7 +233,7 @@ public class Bid implements Comparable<Bid>
 	 */
 	public int toIndex()
 	{
-		return -1;
+		return getBidIndex(this);
 	}
 	
 	/**
@@ -124,7 +244,42 @@ public class Bid implements Comparable<Bid>
 	 */
 	public static Bid max(Bid[] pBids)
 	{
-		return null;
+        Bid max = new Bid();
+
+		for(int i = 0; i < pBids.length; i++){
+            if(pBids[i].type == Type.PASS)
+                continue;
+            else{
+                if(pBids[i].getType() == Type.NO_TRUMP)
+                {
+                    if(max.getType() == Type.BID)
+                        max = pBids[i];
+                    else if(max.getType() == Type.PASS)
+                        max = pBids[i];
+                    else
+                        if(pBids[i].getTricksBid() > max.getTricksBid()){
+                            max = pBids[i];
+                        }else{
+                            continue;
+                        }
+
+                }
+                else{
+                    if(max.getType() == Type.NO_TRUMP)
+                        continue;
+                    else if(max.getType() == Type.PASS)
+                        max = pBids[i];
+                    else
+                    if(pBids[i].getTricksBid() > max.getTricksBid()){
+                        max = pBids[i];
+                    }else{
+                        continue;
+                    }
+                }
+            }
+        }
+
+        return max;
 	}
 	
 	/**
@@ -133,6 +288,31 @@ public class Bid implements Comparable<Bid>
 	 */
 	public int getScore()
 	{
-		return -1;
+		return SCORES[getBidIndex(this)];
 	}
+
+    private int getBidIndex(Bid bid){
+
+        if(bid.getSuit() == null)
+            return (bid.getTricksBid() - 6) * 5 + 4;
+
+        switch (bid.getSuit()){
+            case SPADES:
+                int m = (bid.getTricksBid() - 6) * 5;
+                return m;
+
+            case CLUBS:
+                return (bid.getTricksBid() - 6) * 5  + 1;
+
+            case DIAMONDS:
+                return (bid.getTricksBid() - 6) * 5 + 2;
+
+            case HEARTS:
+                return (bid.getTricksBid() - 6) * 5 + 3;
+
+            default:
+                return (bid.getTricksBid() - 6) * 5 + 4;
+
+        }
+    }
 }

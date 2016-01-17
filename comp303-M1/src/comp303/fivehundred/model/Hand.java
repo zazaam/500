@@ -3,6 +3,12 @@ package comp303.fivehundred.model;
 import comp303.fivehundred.util.Card;
 import comp303.fivehundred.util.Card.Suit;
 import comp303.fivehundred.util.CardList;
+import sun.security.util.Debug;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Additional services to manage a card list that corresponds to
@@ -17,7 +23,19 @@ public class Hand extends CardList
 	@Override
 	public Hand clone()
 	{
-		return null;
+		CardList t = new CardList();
+		List<Card> temp = new ArrayList<>();
+		getCardList().stream()
+				.forEach(card -> {
+					if(!card.isJoker())
+						temp.add(new Card(card.getRank(), card.getSuit()));
+					else
+						temp.add(new Card(card.getJokerValue()));
+				});
+		t.setCardList(temp);
+		Hand h = new Hand();
+		h.setCardList(temp);
+		return h;
 	}
 	
 	/**
@@ -26,7 +44,7 @@ public class Hand extends CardList
 	 */
 	public CardList canLead(boolean pNoTrump)
 	{
-		return null;
+		return this;
 	}
 	
 	/**
@@ -34,7 +52,13 @@ public class Hand extends CardList
 	 */
 	public CardList getJokers()
 	{
-		return null;
+		List<Card> temp = new ArrayList<Card>();
+		getCardList().stream()
+				.filter(card -> card.isJoker())
+				.forEach(j -> temp.add(j));
+		CardList c = new CardList();
+		c.setCardList(temp);
+		return c ;
 	}
 	
 	/**
@@ -42,7 +66,13 @@ public class Hand extends CardList
 	 */
 	public CardList getNonJokers()
 	{
-		return null;
+		List<Card> temp = new ArrayList<Card>();
+		getCardList().stream()
+				.filter(card -> !card.isJoker())
+				.forEach(j -> temp.add(j));
+		CardList c = new CardList();
+		c.setCardList(temp);
+		return c ;
 	}
 	
 	/**
@@ -54,7 +84,13 @@ public class Hand extends CardList
 	 */
 	public CardList getTrumpCards(Suit pTrump)
 	{
-		return null;
+		List<Card> temp = new ArrayList<Card>();
+		getCardList().stream()
+				.filter(card -> card.isJoker() || card.getEffectiveSuit(pTrump) == pTrump)
+				.forEach(j -> temp.add(j));
+		CardList c = new CardList();
+		c.setCardList(temp);
+		return c ;
 	}
 	
 	/**
@@ -66,7 +102,14 @@ public class Hand extends CardList
 	 */
 	public CardList getNonTrumpCards(Suit pTrump)
 	{
-		return null;
+
+		List<Card> temp = new ArrayList<Card>();
+		getCardList().stream()
+				.filter(card -> !card.isJoker() && card.getEffectiveSuit(pTrump) != pTrump)
+				.forEach(j -> temp.add(j));
+		CardList c = new CardList();
+		c.setCardList(temp);
+		return c ;
 	}
 	
 	
@@ -77,7 +120,10 @@ public class Hand extends CardList
 	 */
 	public Card selectLowest(Suit pTrump)
 	{
-		return null;
+		if (pTrump == null)
+			return sort(new Card.ByRankComparator()).getFirst();
+		else
+			return  sort(new Card.BySuitComparator(pTrump)).getFirst();
 	}
 	
 	/**
@@ -87,7 +133,35 @@ public class Hand extends CardList
 	 */
 	public CardList playableCards( Suit pLed, Suit pTrump )
 	{
-		return null;
+		CardList trumps = getTrumpCards(pTrump);
+		CardList nonTrumps = getNonTrumpCards(pTrump);
+
+		if(pLed != pTrump){
+			List<Card> temp = new ArrayList<Card>();
+			nonTrumps.getCardList().stream()
+					.filter(card -> card.getSuit() == pLed)
+					.forEach(j -> temp.add(j));
+			if(temp.size() != 0){
+				CardList c = new CardList();
+				c.setCardList(temp);
+				return c;
+			}
+			else
+			{
+				if(trumps.getCardList().size() != 0)
+					return trumps;
+				else
+					return nonTrumps;
+			}
+
+		}
+		else{
+			if(trumps.getCardList().size() != 0)
+				return trumps;
+			else
+				return nonTrumps;
+		}
+
 	}
 	
 	/**
@@ -100,6 +174,23 @@ public class Hand extends CardList
 	 */
 	public int numberOfCards(Suit pSuit, Suit pTrump)
 	{
-		return -1;
+		if(pSuit.getConverse() == pTrump) {
+            return (int) getCardList().stream()
+                    .filter(card1 -> !card1.isJoker())
+                    .filter(card -> card.getSuit() == pSuit && (card.getEffectiveSuit(pTrump) != pTrump))
+                    .count();
+
+        }else if(pTrump == pSuit){
+            return (int) getCardList().stream()
+                    .filter(card1 -> !card1.isJoker())
+                    .filter(card -> card.getSuit() == pSuit || (card.getEffectiveSuit(pTrump) == pTrump))
+                    .count();
+
+		}else{
+			return (int)getCardList().stream()
+                    .filter(card1 -> !card1.isJoker())
+					.filter(card -> card.getSuit() == pSuit)
+					.count();
+		}
 	}
 }

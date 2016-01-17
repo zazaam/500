@@ -91,7 +91,12 @@ public class CardList implements Iterable<Card>, Cloneable
         CardList t = new CardList();
         List<Card> temp = new ArrayList<>();
 		cardList.stream()
-            .forEach(card -> temp.add(new Card(card.getRank(), card.getSuit())));
+            .forEach(card -> {
+                if(!card.isJoker())
+				    temp.add(new Card(card.getRank(), card.getSuit()));
+                else
+                    temp.add(new Card(card.getJokerValue()));
+            });
         t.setCardList(temp);
         return t;
 	}

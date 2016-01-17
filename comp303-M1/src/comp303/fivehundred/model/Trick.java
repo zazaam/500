@@ -10,13 +10,19 @@ import comp303.fivehundred.util.CardList;
  * as part of the play of a trick.
  */
 public class Trick extends CardList
-{	
+{
+
+    private Bid contract;
+    private Suit suitLed;
+    private int trickLed;
+
 	/**
 	 * Constructs a new empty trick for the specified contract.
 	 * @param pContract The contract that this trick is played for.
 	 */
 	public Trick(Bid pContract)
 	{
+        this.contract = pContract;
 	}
 	
 	/**
@@ -24,7 +30,7 @@ public class Trick extends CardList
 	 */
 	public Suit getTrumpSuit()
 	{
-		return null;
+		return contract.getSuit();
 	}
 	
 	
@@ -33,7 +39,9 @@ public class Trick extends CardList
 	 */
 	public Suit getSuitLed()
 	{
-		return null;
+		if(getFirst().isJoker() || getFirst().getEffectiveSuit(getTrumpSuit()) == getTrumpSuit())
+            return getTrumpSuit();
+		return getFirst().getSuit();
 	}
 	
 	/**
@@ -41,7 +49,7 @@ public class Trick extends CardList
 	 */
 	public boolean jokerLed()
 	{
-		return false;
+		return getFirst().isJoker();
 	}
 	
 	/**
@@ -50,7 +58,7 @@ public class Trick extends CardList
 	 */
 	public Card cardLed()
 	{
-		return null;
+		return getFirst();
 	}
 
 	/**
@@ -60,7 +68,11 @@ public class Trick extends CardList
 	 */
 	public Card highest()
 	{
-		return null;
+		if(getTrumpSuit() != null){
+            return sort(new Card.BySuitComparator(getTrumpSuit())).getLast();
+        }
+        else
+            return sort(new Card.ByRankComparator()).getLast();
 	}
 	
 	/**
@@ -68,6 +80,6 @@ public class Trick extends CardList
 	 */
 	public int winnerIndex()
 	{
-		return -1;
+		return getCardList().indexOf(highest());
 	}
 }

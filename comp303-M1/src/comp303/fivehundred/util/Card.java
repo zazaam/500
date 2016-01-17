@@ -286,6 +286,10 @@ public final class Card implements Comparable<Card>
 		@Override
 		public int compare(Card pCard1, Card pCard2)
 		{
+
+            if(pCard1.isJoker() || pCard2.isJoker())
+                return pCard1.compareTo(pCard2);
+
             if(pCard1.getSuit().compareTo(pCard2.getSuit()) < 0)
                 return -1;
             if(pCard1.getSuit().compareTo(pCard2.getSuit()) > 0)
@@ -311,7 +315,7 @@ public final class Card implements Comparable<Card>
 		public int compare(Card pCard1, Card pCard2)
 		{
             if(pCard1.isJoker() || pCard2.isJoker())
-                return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
+                return pCard1.compareTo(pCard2);
 
             if(temp != null){
                 Suit suit1 = pCard1.getEffectiveSuit(temp), suit2 = pCard2.getEffectiveSuit(temp);
@@ -336,11 +340,17 @@ public final class Card implements Comparable<Card>
                         else
                             return 1;
 
-                    }else
-                        return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
+                    }else{
+                        if(suit2 == temp){
+                            return -1;
+                        }
+                        else
+                            return new ByRankComparator().compare(pCard1, pCard2);
+                    }
+
                 }
             }
-            return 0;
+            return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
 		}
 	}
 }
