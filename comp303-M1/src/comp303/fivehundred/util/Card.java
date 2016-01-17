@@ -20,12 +20,12 @@ public final class Card implements Comparable<Card>
 	{ SPADES, CLUBS, DIAMONDS, HEARTS; 
 		
 		/**
-		 * @return the other suit of the same color. 
+		 * @return the other suit of the same color.
 		 */
 		public Suit getConverse()
 		{
-			Suit lReturn = this;
-			switch(this) 
+			Suit lReturn;
+			switch(this)
 			{
 				case SPADES: lReturn = CLUBS; break;
 				case CLUBS:  lReturn = SPADES; break;
@@ -111,7 +111,7 @@ public final class Card implements Comparable<Card>
 	
 	/**
 	 * Obtain the suit of the card.
-	 * @return An object representing the suit of the card 
+	 * @return An object representing the suit of the card
 	 * @pre !isJoker();
 	 */
 	public Suit getSuit()
@@ -193,31 +193,49 @@ public final class Card implements Comparable<Card>
 	 */
 	public int compareTo(Card pCard)
 	{
-		return 0; // TODO
+        int pCardOrd = pCard.getRank().ordinal(), thisOrd = getRank().ordinal();
+		if(pCardOrd < thisOrd){
+            return -1;
+        }else if (pCardOrd > thisOrd){
+            return 1;
+        }else {
+            return 0;
+        }
 	}
 
 	/**
-	 * Two cards are equal if they have the same suit and rank or if they 
+	 * Two cards are equal if they have the same suit and rank or if they
 	 * are two jokers of the same value.
 	 * @param pCard The card to test.
 	 * @return true if the two cards are equal
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals( Object pCard ) 
+	public boolean equals( Object pCard )
 	{
-		return false; // TODO
+		if(pCard == null) return false;
+        if(this == pCard) return true;
+        if(!(pCard instanceof Card)) return false;
+        Card card = (Card)pCard;
+        if(card.isJoker()){
+            if(this.isJoker())
+                return card.getJokerValue() == this.getJokerValue();
+            return false;
+        }
+        return card.getRank() == this.getRank()
+                && card.getSuit() == this.getSuit();
+
 	}
 
-	/** 
+	/**
 	 * The hashcode for a card is the suit*number of ranks + that of the rank (perfect hash).
 	 * @return the hashcode
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
-	public int hashCode() 
+	public int hashCode()
 	{
-		return 0; // TODO
+		return getRank().ordinal()*getSuit().ordinal() + getRank().ordinal();
 	}
 	
 	/**
@@ -229,7 +247,13 @@ public final class Card implements Comparable<Card>
 		@Override
 		public int compare(Card pCard1, Card pCard2)
 		{
-			return 0; // TODO
+            if(pCard1.compareTo(pCard2) < 0)
+                return -1;
+            if(pCard1.compareTo(pCard2) > 0)
+                return 1;
+            else
+                return pCard1.getSuit().compareTo(pCard2.getSuit());
+
 		}
 		
 	}
@@ -243,7 +267,12 @@ public final class Card implements Comparable<Card>
 		@Override
 		public int compare(Card pCard1, Card pCard2)
 		{
-			return 0; // TODO
+            if(pCard1.getSuit().compareTo(pCard2.getSuit()) < 0)
+                return -1;
+            if(pCard1.getSuit().compareTo(pCard2.getSuit()) > 0)
+                return 1;
+            else
+                return pCard1.compareTo(pCard2);
 		}
 	}
 	
@@ -254,10 +283,45 @@ public final class Card implements Comparable<Card>
 	 */
 	public static class BySuitComparator implements Comparator<Card>
 	{
+        private Suit temp;
+        public BySuitComparator(Suit suit){
+            this.temp = suit;
+        }
+
 		@Override
 		public int compare(Card pCard1, Card pCard2)
 		{
-			return 0; // TODO
+            if(pCard1.isJoker() || pCard2.isJoker())
+                return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
+
+            if(temp != null){
+                Suit suit1 = pCard1.getEffectiveSuit(temp), suit2 = pCard2.getEffectiveSuit(temp);
+
+                if(pCard1.getSuit() == temp){
+                    if(pCard2.getSuit() == temp) {
+                        pCard1.compareTo(pCard2);
+                    }else
+                        return 1;
+                }else{
+                    if(pCard2.getSuit() == temp)
+                        return -1;
+                    else if(suit1 == temp){
+                        if(suit2 == temp){
+                            if(pCard1.getRank() == Rank.JACK)
+                                return 1;
+                            else if(pCard2.getRank() == Rank.JACK)
+                                return -1;
+                            else
+                                return pCard1.compareTo(pCard2);
+                        }
+                        else
+                            return 1;
+
+                    }else
+                        return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
+                }
+            }
+            return 0;
 		}
 	}
 }

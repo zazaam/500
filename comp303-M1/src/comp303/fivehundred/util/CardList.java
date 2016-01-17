@@ -1,7 +1,6 @@
 package comp303.fivehundred.util;
 
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * A mutable list of cards. Does not support duplicates.
@@ -9,11 +8,21 @@ import java.util.Iterator;
  */
 public class CardList implements Iterable<Card>, Cloneable
 {
+    public List<Card> getCardList() {
+        return cardList;
+    }
+
+    public void setCardList(List<Card> cardList) {
+        this.cardList = cardList;
+    }
+
+    List<Card> cardList;
 	/**
 	 * Creates a new, empty card list.
 	 */
 	public CardList()
 	{
+        cardList = new ArrayList<>();
 	}
 	
 	/**
@@ -25,6 +34,8 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public void add(Card pCard)
 	{
+        if(!cardList.stream().anyMatch(card -> card.equals(pCard)))
+            cardList.add(pCard);
 	}
 	
 	/**
@@ -32,7 +43,7 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public int size()
 	{
-		return 0;
+		return cardList.size();
 	}
 	
 	/**
@@ -42,7 +53,7 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public Card getFirst()
 	{
-		return null;
+		return cardList.get(0);
 	}
 	
 	/**
@@ -52,7 +63,7 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public Card getLast()
 	{
-		return null;
+		return cardList.get(cardList.size()-1);
 	}
 	
 	/**
@@ -63,15 +74,22 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public void remove(Card pCard)
 	{
+        cardList.remove(pCard);
 	}
 	
 	/**
 	 * @see java.lang.Object#clone()
 	 * {@inheritDoc}
 	 */
+    @Override
 	public CardList clone()
 	{
-		return null;
+        CardList t = new CardList();
+        List<Card> temp = new ArrayList<>();
+		cardList.stream()
+            .forEach(card -> temp.add(new Card(card.getRank(), card.getSuit())));
+        t.setCardList(temp);
+        return t;
 	}
 	
 	/**
@@ -81,7 +99,21 @@ public class CardList implements Iterable<Card>, Cloneable
 	@Override
 	public Iterator<Card> iterator()
 	{
-		return null;
+		Iterator<Card> it = new Iterator<Card>() {
+
+            int position = 0;
+
+            @Override
+            public boolean hasNext() {
+                return position+1 <= cardList.size()-1;
+            }
+
+            @Override
+            public Card next() {
+                return cardList.get(++position);
+            }
+        };
+        return it;
 	}
 	
 	/**
@@ -90,7 +122,12 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public String toString()
 	{
-		return null;
+		StringBuilder sb = new StringBuilder();
+        sb.append("This deck contains " + cardList.size() + " cards. Here they are:\n");
+        for(Card card : cardList){
+            sb.append(card + " ");
+        }
+        return sb.toString();
 	}
 	
 	/**
@@ -99,7 +136,8 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public Card random()
 	{
-		return null;
+        Random r = new Random(System.currentTimeMillis());
+		return cardList.get(r.nextInt(cardList.size()));
 	}
 	
 	/**
@@ -111,6 +149,8 @@ public class CardList implements Iterable<Card>, Cloneable
 	 */
 	public CardList sort(Comparator<Card> pComparator)
 	{
-		return null;
+        CardList l = clone();
+        Collections.sort(l.getCardList(), pComparator);
+        return l;
 	}
 }
