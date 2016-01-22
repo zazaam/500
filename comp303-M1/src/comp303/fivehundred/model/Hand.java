@@ -1,5 +1,7 @@
 package comp303.fivehundred.model;
 
+import comp303.fivehundred.engine.Event;
+import comp303.fivehundred.engine.GameEventListener;
 import comp303.fivehundred.util.Card;
 import comp303.fivehundred.util.Card.Suit;
 import comp303.fivehundred.util.CardList;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
  * Additional services to manage a card list that corresponds to
  * the cards in a player's hand.
  */
-public class Hand extends CardList
+public class Hand extends CardList implements GameEventListener
 {
 	/**
 	 * @see java.lang.Object#clone()
@@ -193,4 +195,9 @@ public class Hand extends CardList
 					.count();
 		}
 	}
+
+    @Override
+    public void listen(Event e) {
+
+    }
 }

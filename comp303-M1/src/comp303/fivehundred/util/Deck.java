@@ -3,13 +3,17 @@ package comp303.fivehundred.util;
 import java.util.Collections;
 import java.util.Stack;
 
+import comp303.fivehundred.engine.Event;
+import comp303.fivehundred.engine.GameEngine;
+import comp303.fivehundred.engine.GameEventListener;
+import comp303.fivehundred.engine.ShuffleEvent;
 import comp303.fivehundred.util.Card.Rank;
 import comp303.fivehundred.util.Card.Suit;
 
 /**
  * Models a deck of 46 cards. Ace, King, ... down to 4 in all suits, plus two jokers.
  */
-public class Deck 
+public class Deck implements GameEventListener
 {
 	private Stack<Card> aCards;
 	
@@ -60,5 +64,12 @@ public class Deck
 	public int size()
 	{
 		return aCards.size();
+	}
+
+	@Override
+	public void listen(Event e) {
+	    if(e instanceof ShuffleEvent){
+            GameEngine.logger.info("Deck has been shuffled!");
+        }
 	}
 }

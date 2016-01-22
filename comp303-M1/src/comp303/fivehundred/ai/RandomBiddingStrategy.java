@@ -18,17 +18,21 @@ public class RandomBiddingStrategy implements IBiddingStrategy
 	 */
 	public RandomBiddingStrategy()
 	{
-		Random r = new Random(System.currentTimeMillis());
-
-		if(r.nextInt(2) == 0){
-			bid = new Bid();
-		}
-		else{
-			bid = new Bid(r.nextInt(25));
-		}
+        setNewBidding();
 	}
-	
-	/** 
+
+    private void setNewBidding() {
+        Random r = new Random(System.currentTimeMillis());
+
+        if(r.nextInt(2) == 0){
+            bid = new Bid();
+        }
+        else{
+            bid = new Bid(r.nextInt(25));
+        }
+    }
+
+    /**
 	 * Builds a robot that passes the specified percentage number of the time.
 	 * @param pPassFrequency A percentage point (e.g., 50 for 50%) of the time the robot 
 	 * will pass. Must be between 0 and 100 inclusive. 
@@ -54,7 +58,11 @@ public class RandomBiddingStrategy implements IBiddingStrategy
 		Bid max  = Bid.max(pPreviousBids);
 
 		if(max.getType() == Bid.Type.PASS)
-			return bid;
+        {
+            setNewBidding();
+            return bid;
+        }
+
 		else{
 			int maxIndex = max.toIndex();
 			if(maxIndex == 24) return new Bid();

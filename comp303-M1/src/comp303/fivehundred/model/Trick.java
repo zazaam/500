@@ -1,22 +1,31 @@
 package comp303.fivehundred.model;
 
+import comp303.fivehundred.engine.Event;
+import comp303.fivehundred.engine.GameEventListener;
 import comp303.fivehundred.util.Card;
 import comp303.fivehundred.util.Card.Suit;
 import comp303.fivehundred.util.CardList;
+
+import java.util.Observable;
 
 
 /**
  * A card list specialized for handling cards discarded
  * as part of the play of a trick.
  */
-public class Trick extends CardList
+public class Trick extends CardList implements GameEventListener
 {
 
     private Bid contract;
     private Suit suitLed;
     private int trickLed;
 
-	/**
+
+    public Trick(){
+
+    }
+
+    /**
 	 * Constructs a new empty trick for the specified contract.
 	 * @param pContract The contract that this trick is played for.
 	 */
@@ -24,6 +33,7 @@ public class Trick extends CardList
 	{
         this.contract = pContract;
 	}
+
 	
 	/**
 	 * @return Can be null for no-trump.
@@ -82,4 +92,9 @@ public class Trick extends CardList
 	{
 		return getCardList().indexOf(highest());
 	}
+
+    @Override
+    public void listen(Event e) {
+
+    }
 }

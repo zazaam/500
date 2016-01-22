@@ -24,7 +24,7 @@ public class RandomPlayingStrategy implements IPlayingStrategy
 		if(pTrick.size() == 0)
 		{
             if(pTrick.getTrumpSuit() == null)
-                return pHand.getNonJokers().getCardList().get(new Random(System.currentTimeMillis()).nextInt(pHand.getNonJokers().getCardList().size()));
+                return pHand.getCardList().get(new Random(System.currentTimeMillis()).nextInt(pHand.getCardList().size()));
             else
                 return pHand.getCardList().get(new Random(System.currentTimeMillis()).nextInt(pHand.getCardList().size()));
 
@@ -33,9 +33,9 @@ public class RandomPlayingStrategy implements IPlayingStrategy
             List<Card> list = new ArrayList<>();
             cList.getCardList().stream()
                     .filter(card -> card.compareTo(pTrick.highest()) > 0)
-            .map(card1 -> list.add(card1));
+            .forEach(card1 -> list.add(card1));
             if(list.isEmpty()) {
-                CardList clone = cList.clone();
+                CardList clone = pHand.clone();
                 Collections.shuffle(clone.getCardList());
                 return clone.getFirst();
             }

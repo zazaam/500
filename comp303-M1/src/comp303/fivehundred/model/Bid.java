@@ -246,6 +246,9 @@ public class Bid implements Comparable<Bid>
 	{
         Bid max = new Bid();
 
+        if(pBids == null)
+            return max;
+
 		for(int i = 0; i < pBids.length; i++){
             if(pBids[i].type == Type.PASS)
                 continue;
