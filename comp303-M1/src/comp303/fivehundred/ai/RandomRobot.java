@@ -11,7 +11,7 @@ import comp303.fivehundred.util.CardList;
  */
 public class RandomRobot implements IRobotPlayer
 {
-	private IBiddingStrategy aBiddingStrategy = new RandomBiddingStrategy();
+	private IBiddingStrategy aBiddingStrategy = new RandomBiddingStrategy(30);
 	private ICardExchangeStrategy aCardExchangeStrategy = new RandomCardExchangeStrategy();
 	private IPlayingStrategy aPlayingStrategy = new RandomPlayingStrategy();
 	

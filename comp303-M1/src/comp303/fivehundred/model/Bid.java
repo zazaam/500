@@ -1,6 +1,10 @@
 package comp303.fivehundred.model;
 
 import com.sun.deploy.security.ValidationState;
+import comp303.fivehundred.engine.BidEvent;
+import comp303.fivehundred.engine.Event;
+import comp303.fivehundred.engine.GameEngine;
+import comp303.fivehundred.engine.GameEventListener;
 import comp303.fivehundred.util.Card.Suit;
 
 
@@ -8,9 +12,19 @@ import comp303.fivehundred.util.Card.Suit;
 /**
  * Represents a bid or a contract for a player. Immutable.
  */
-public class Bid implements Comparable<Bid>
+public class Bid implements Comparable<Bid>, GameEventListener
 {
-    public enum Type {BID, NO_TRUMP, PASS}
+    @Override
+    public void listen(Event e) {
+        if(e instanceof BidEvent){
+            GameEngine.logger.info(toString());
+        }
+
+    }
+
+    public enum Type {
+        BID, NO_TRUMP, PASS;
+    }
 
 	private int trick = 0, bidIndex;
 
@@ -250,7 +264,10 @@ public class Bid implements Comparable<Bid>
             return max;
 
 		for(int i = 0; i < pBids.length; i++){
-            if(pBids[i].type == Type.PASS)
+            if(pBids[i] == null) return max;
+            if(pBids[i].compareTo(max) > 0)
+                max = pBids[i];
+            /*if(pBids[i].type == Type.PASS)
                 continue;
             else{
                 if(pBids[i].getType() == Type.NO_TRUMP)
@@ -279,7 +296,7 @@ public class Bid implements Comparable<Bid>
                         continue;
                     }
                 }
-            }
+            }*/
         }
 
         return max;

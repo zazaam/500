@@ -56,6 +56,7 @@ public class GameEngine {
     }
 
     public void deal() {
+        removeListener(deck);
         deck = new Deck();
         addListener(deck);
         deck.shuffle();
@@ -78,11 +79,21 @@ public class GameEngine {
 
         Bid bidTemp[] = null;
 
+        removeListeners(bids);
+
         for(int i = 0; i < 4; i++){
             bids[i] = players[i].selectBid(bidTemp, hands[i]);
+            addListener(bids[i]);
             bidTemp = new Bid[i+1];
             for(int j = 0; j < i+1; j++)
                 bidTemp[j] = bids[i];
+        }
+        notifyListeners(new BidEvent());
+    }
+
+    private void removeListeners(GameEventListener[] listeners) {
+        for(int i = 0; i< listeners.length; i++){
+            this.listeners.remove(listeners[i]);
         }
     }
 
@@ -136,6 +147,9 @@ public class GameEngine {
         }
     }
 
+    private void removeListener(GameEventListener gel){
+        listeners.remove(gel);
+    }
 
     private void addListener(GameEventListener gel){
         listeners.add(gel);
