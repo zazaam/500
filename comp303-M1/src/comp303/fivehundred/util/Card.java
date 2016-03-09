@@ -1,12 +1,24 @@
 package comp303.fivehundred.util;
 
+import comp303.fivehundred.gui.IDrawable;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+
 import java.util.Comparator;
 
 /**
  * An immutable description of a playing card.
  */
-public final class Card implements Comparable<Card>
+public final class Card implements Comparable<Card>, IDrawable
 {
+
+
 	/**
 	 * Represents the rank of the card.
 	 */
@@ -51,7 +63,41 @@ public final class Card implements Comparable<Card>
 	
 	// If this field is null, it means the card is not a joker, and vice-versa.
 	private final Joker aJoker;
-	
+
+	private ImageView cardImage = null;
+
+	public ImageView backImage = new ImageView(new Image("/images/b.gif", 0, 100, false, false));
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	private boolean isSelected = false;
+
+	private EventHandler<MouseEvent> handler = (MouseEvent event) -> {
+		if(MouseEvent.MOUSE_ENTERED == event.getEventType()){
+			if(!isSelected){
+				cardImage.setEffect(new DropShadow());
+			}
+		}
+		else if(MouseEvent.MOUSE_CLICKED == event.getEventType()){
+			if(!isSelected){
+				DropShadow d = new DropShadow();
+				d.setColor(Color.CHOCOLATE);
+				cardImage.setEffect(d);
+				isSelected = !isSelected;
+			}else{
+				cardImage.setEffect(null);
+				isSelected = !isSelected;
+			}
+		}
+		else if(MouseEvent.MOUSE_EXITED == event.getEventType()){
+			if(!isSelected){
+				cardImage.setEffect(null);
+			}
+		}
+	};
+
 	/**
 	 * Create a new card object that is not a joker. 
 	 * @param pRank The rank of the card.
@@ -66,8 +112,13 @@ public final class Card implements Comparable<Card>
 		aRank = pRank;
 		aSuit = pSuit;
 		aJoker = null;
+		setImage();
+		setListeners();
 	}
-	
+
+
+
+
 	/**
 	 * Creates a new joker card.
 	 * @param pValue Whether this is the low or high joker.
@@ -79,6 +130,25 @@ public final class Card implements Comparable<Card>
 		aRank = null;
 		aSuit = null;
 		aJoker = pValue;
+		setImage();
+		setListeners();
+	}
+
+	private void setListeners() {
+		cardImage.addEventHandler(MouseEvent.MOUSE_ENTERED, handler);
+        cardImage.addEventHandler(MouseEvent.MOUSE_EXITED, handler);
+		cardImage.addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
+	}
+
+	public void removeListeners(){
+		cardImage.setEffect(null);
+		cardImage.removeEventHandler(MouseEvent.MOUSE_ENTERED, handler);
+		cardImage.addEventHandler(MouseEvent.MOUSE_EXITED, handler);
+		cardImage.addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
+	}
+
+	private void setImage() {
+		cardImage = new ImageView(new Image("/images/"+toShortString()+".gif", 0, 100, false, false));
 	}
 	
 	/**
@@ -352,5 +422,18 @@ public final class Card implements Comparable<Card>
             }
             return new BySuitNoTrumpComparator().compare(pCard1, pCard2);
 		}
+	}
+
+	@Override
+	public void draw(int x, int y) {
+		cardImage.setX(x);
+		cardImage.setY(y);
+		backImage.setX(x);
+		backImage.setY(y);
+	}
+
+	public ImageView getImage(boolean isFront)
+	{
+		return isFront ? cardImage : backImage;
 	}
 }

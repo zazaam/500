@@ -1,10 +1,9 @@
 package comp303.fivehundred.model;
 
-import com.sun.deploy.security.ValidationState;
-import comp303.fivehundred.engine.BidEvent;
-import comp303.fivehundred.engine.Event;
+import comp303.fivehundred.engine.Events.BidEvent;
+import comp303.fivehundred.engine.Events.Event;
 import comp303.fivehundred.engine.GameEngine;
-import comp303.fivehundred.engine.GameEventListener;
+import comp303.fivehundred.engine.IGameEventListener;
 import comp303.fivehundred.util.Card.Suit;
 
 
@@ -12,7 +11,7 @@ import comp303.fivehundred.util.Card.Suit;
 /**
  * Represents a bid or a contract for a player. Immutable.
  */
-public class Bid implements Comparable<Bid>, GameEventListener
+public class Bid implements Comparable<Bid>, IGameEventListener
 {
     @Override
     public void listen(Event e) {

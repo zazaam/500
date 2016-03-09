@@ -1,22 +1,20 @@
 package comp303.fivehundred.model;
 
-import comp303.fivehundred.engine.Event;
-import comp303.fivehundred.engine.GameEventListener;
+import comp303.fivehundred.engine.Events.Event;
+import comp303.fivehundred.engine.IGameEventListener;
+import comp303.fivehundred.gui.IDrawable;
 import comp303.fivehundred.util.Card;
 import comp303.fivehundred.util.Card.Suit;
 import comp303.fivehundred.util.CardList;
-import sun.security.util.Debug;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * Additional services to manage a card list that corresponds to
  * the cards in a player's hand.
  */
-public class Hand extends CardList implements GameEventListener
+public class Hand extends CardList implements IGameEventListener, IDrawable
 {
 	/**
 	 * @see java.lang.Object#clone()
@@ -200,4 +198,27 @@ public class Hand extends CardList implements GameEventListener
     public void listen(Event e) {
 
     }
+
+	@Override
+	public void draw(int x, int y) {
+		List<Card> list = getCardList();
+		if(x == 0)
+		{
+			for(int i = 0; i < getCardList().size(); i++){
+				list.get(i).draw(i*50+140, -107);//-87);
+			}
+		}else if(x == 1){
+			for(int i = 0; i < getCardList().size(); i++){
+				list.get(i).draw(0, i*-30-210);
+			}
+		}else if(x == 2){
+			for(int i = 0; i < getCardList().size(); i++){
+				list.get(i).draw(i*50+140, -600);
+			}
+		}else{
+			for(int i = 0; i < getCardList().size(); i++){
+				list.get(i).draw(738, i*-30-210);
+			}
+		}
+	}
 }
